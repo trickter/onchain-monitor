@@ -1,9 +1,10 @@
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$powershellExe = (Get-Command powershell.exe).Source
-$burstScript = Join-Path $scriptDir "run_burst_scan.ps1"
-$reportScript = Join-Path $scriptDir "run_send_report.ps1"
+$wscriptExe = (Get-Command wscript.exe).Source
+$vbsLauncher = Join-Path $scriptDir "launch_hidden.vbs"
+$burstCmd = Join-Path $scriptDir "launch_burst_hidden.cmd"
+$reportCmd = Join-Path $scriptDir "launch_report_hidden.cmd"
 $startupDir = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup"
 
 function Register-OnchainTask {
@@ -37,27 +38,27 @@ function Install-StartupLauncher {
         [Parameter(Mandatory = $true)]
         [string]$LauncherPath,
         [Parameter(Mandatory = $true)]
-        [string]$ScriptPath
+        [string]$CommandPath
     )
 
     $content = @(
-        "@echo off",
-        "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$ScriptPath`""
+        "Set shell = CreateObject(""WScript.Shell"")",
+        "shell.Run Chr(34) & ""$CommandPath"" & Chr(34), 0, False"
     )
     Set-Content -LiteralPath $LauncherPath -Value $content -Encoding ASCII
 }
 
-$burstRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$burstScript`""
-$morningRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$reportScript`" -Kind morning"
-$noonRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$reportScript`" -Kind noon"
-$eveningRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$reportScript`" -Kind evening"
+$burstRun = "`"$wscriptExe`" `"$vbsLauncher`" `"`"$burstCmd`"`""
+$morningRun = "`"$wscriptExe`" `"$vbsLauncher`" `"`"$reportCmd`" morning`""
+$noonRun = "`"$wscriptExe`" `"$vbsLauncher`" `"`"$reportCmd`" noon`""
+$eveningRun = "`"$wscriptExe`" `"$vbsLauncher`" `"`"$reportCmd`" evening`""
 
 Register-OnchainTask -TaskName "OnchainMonitor_Burst" -Schedule "MINUTE" -Modifier "3" -TaskRun $burstRun
 Register-OnchainTask -TaskName "OnchainMonitor_MorningReport" -Schedule "DAILY" -StartTime "08:00" -TaskRun $morningRun
 Register-OnchainTask -TaskName "OnchainMonitor_NoonReport" -Schedule "DAILY" -StartTime "12:30" -TaskRun $noonRun
 Register-OnchainTask -TaskName "OnchainMonitor_EveningReport" -Schedule "DAILY" -StartTime "20:00" -TaskRun $eveningRun
 
-$startupLauncher = Join-Path $startupDir "OnchainMonitor_Burst.cmd"
-Install-StartupLauncher -LauncherPath $startupLauncher -ScriptPath $burstScript
+$startupLauncher = Join-Path $startupDir "OnchainMonitor_Burst.vbs"
+Install-StartupLauncher -LauncherPath $startupLauncher -CommandPath $burstCmd
 
 Write-Host "Scheduled tasks registered successfully."
