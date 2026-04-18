@@ -80,6 +80,17 @@ def _summarize_asset(asset, reason: str) -> str:
     )
 
 
+def _format_blocked_summary_lines(summary: str) -> list[str]:
+    if " breakdown=" not in summary:
+        return [f"- {summary}"]
+
+    header, breakdown = summary.split(" breakdown=", 1)
+    lines = [f"- {header}", "  breakdown:"]
+    for item in breakdown.split("; "):
+        lines.append(f"  - {item}")
+    return lines
+
+
 def _write_latest_debug_snapshot(push_count: int, upgrade_count: int, blocked_summaries: list[str]) -> None:
     logs_dir = Path(__file__).parent.parent / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -93,7 +104,9 @@ def _write_latest_debug_snapshot(push_count: int, upgrade_count: int, blocked_su
 
     if blocked_summaries:
         lines.append("top_blocked_candidates:")
-        lines.extend(f"- {summary}" for summary in blocked_summaries)
+        for summary in blocked_summaries:
+            lines.extend(_format_blocked_summary_lines(summary))
+            lines.append("")
     else:
         lines.append("top_blocked_candidates: none")
 
@@ -223,7 +236,8 @@ def run(cfg: dict, dry_run: bool = False):
     if push_count == 0 and blocked_summaries:
         logger.info("top blocked candidates:")
         for summary in blocked_summaries:
-            logger.info("  - %s", summary)
+            for line in _format_blocked_summary_lines(summary):
+                logger.info("%s", line)
     _write_latest_debug_snapshot(push_count, upgrade_count, blocked_summaries)
 
 
