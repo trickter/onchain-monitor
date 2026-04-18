@@ -47,10 +47,10 @@ function Install-StartupLauncher {
     Set-Content -LiteralPath $LauncherPath -Value $content -Encoding ASCII
 }
 
-$burstRun = "`"$powershellExe`" -NoProfile -ExecutionPolicy Bypass -File `"$burstScript`""
-$morningRun = "`"$powershellExe`" -NoProfile -ExecutionPolicy Bypass -File `"$reportScript`" -Kind morning"
-$noonRun = "`"$powershellExe`" -NoProfile -ExecutionPolicy Bypass -File `"$reportScript`" -Kind noon"
-$eveningRun = "`"$powershellExe`" -NoProfile -ExecutionPolicy Bypass -File `"$reportScript`" -Kind evening"
+$burstRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$burstScript`""
+$morningRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$reportScript`" -Kind morning"
+$noonRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$reportScript`" -Kind noon"
+$eveningRun = "`"$powershellExe`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$reportScript`" -Kind evening"
 
 Register-OnchainTask -TaskName "OnchainMonitor_Burst" -Schedule "MINUTE" -Modifier "3" -TaskRun $burstRun
 Register-OnchainTask -TaskName "OnchainMonitor_MorningReport" -Schedule "DAILY" -StartTime "08:00" -TaskRun $morningRun

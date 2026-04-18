@@ -69,6 +69,35 @@ def _load_watchlist() -> set[str]:
         return set()
 
 
+def _summarize_asset(asset, reason: str) -> str:
+    symbol = asset.symbol or asset.contract or asset.asset_key
+    return (
+        f"{symbol} [{asset.chain}] "
+        f"score={asset.score} tier={asset.tier} reason={reason} "
+        f"sources={','.join(asset.sources)}"
+    )
+
+
+def _write_latest_debug_snapshot(push_count: int, upgrade_count: int, blocked_summaries: list[str]) -> None:
+    logs_dir = Path(__file__).parent.parent / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    debug_path = logs_dir / "latest-burst-debug.log"
+
+    lines = [
+        f"time: {datetime.now().isoformat()}",
+        f"pushed: {push_count}",
+        f"upgrades: {upgrade_count}",
+    ]
+
+    if blocked_summaries:
+        lines.append("top_blocked_candidates:")
+        lines.extend(f"- {summary}" for summary in blocked_summaries)
+    else:
+        lines.append("top_blocked_candidates: none")
+
+    debug_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def run(cfg: dict, dry_run: bool = False):
     state.init()
 
@@ -107,6 +136,7 @@ def run(cfg: dict, dry_run: bool = False):
 
     push_count = 0
     upgrade_count = 0
+    blocked_summaries: list[str] = []
 
     for asset in scored:
         # persist score, tier, and delta-comparison metrics for the next scan
@@ -119,20 +149,28 @@ def run(cfg: dict, dry_run: bool = False):
 
         # candidate (score 4-5) is report-only, never burst
         if asset.tier in ("noise", "candidate"):
+            if len(blocked_summaries) < 5 and asset.score >= cfg.get("thresholds", {}).get("burst_report_candidate_min_score", 4):
+                blocked_summaries.append(_summarize_asset(asset, "below burst threshold"))
             continue
 
         # risky-tagged assets (high_bundle, suspicious_dev, etc.) skip burst
         if asset.report_candidate_only:
+            if len(blocked_summaries) < 5:
+                blocked_summaries.append(_summarize_asset(asset, "report-only risk tag"))
             continue
 
         # burst requires at least one on-chain source
         if asset.tier in ("hot", "critical") and not asset.has_onchain_evidence:
             logger.debug("skip burst %s: no on-chain evidence", asset.asset_key)
+            if len(blocked_summaries) < 5:
+                blocked_summaries.append(_summarize_asset(asset, "missing on-chain evidence"))
             continue
 
         # quiet hours suppress hot (not critical)
         if quiet and asset.tier == "hot":
             logger.debug("quiet hours: suppressing hot burst for %s", asset.symbol)
+            if len(blocked_summaries) < 5:
+                blocked_summaries.append(_summarize_asset(asset, "quiet hours"))
             continue
 
         # cooldown check
@@ -142,11 +180,15 @@ def run(cfg: dict, dry_run: bool = False):
         )
         if not ok_to_push:
             logger.debug("cooldown: skip %s (score=%d, tier=%s)", asset.symbol, asset.score, asset.tier)
+            if len(blocked_summaries) < 5:
+                blocked_summaries.append(_summarize_asset(asset, "cooldown"))
             continue
 
         webhook = cfg["discord"]["webhook_bursts"]
         if not webhook or webhook.startswith("https://discord.com/api/webhooks/REPLACE"):
             logger.warning("webhook_bursts not configured")
+            if len(blocked_summaries) < 5:
+                blocked_summaries.append(_summarize_asset(asset, "webhook not configured"))
             continue
 
         explorer_url, dexscreener_url = _build_explorer_urls(asset.chain, asset.contract)
@@ -183,6 +225,11 @@ def run(cfg: dict, dry_run: bool = False):
                 logger.error("failed to push %s", asset.symbol)
 
     logger.info("scan complete: pushed=%d upgrades=%d", push_count, upgrade_count)
+    if push_count == 0 and blocked_summaries:
+        logger.info("top blocked candidates:")
+        for summary in blocked_summaries:
+            logger.info("  - %s", summary)
+    _write_latest_debug_snapshot(push_count, upgrade_count, blocked_summaries)
 
 
 if __name__ == "__main__":
