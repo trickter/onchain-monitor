@@ -216,17 +216,17 @@ def score_events(
 
             total_score += points
             if evidence_text:
-                evidence.append(evidence_text)
+                evidence.append(f"+{points} {evidence_text}")
 
         points, evidence_text = _score_consecutive(consecutive)
         total_score += points
         if evidence_text:
-            evidence.append(evidence_text)
+            evidence.append(f"+{points} {evidence_text}")
 
         points, evidence_text = _score_watchlist(asset_key, watchlist)
         total_score += points
         if evidence_text:
-            evidence.append(evidence_text)
+            evidence.append(f"+{points} {evidence_text}")
 
         thresholds = cfg.get("thresholds", {})
         hot_min = thresholds.get("burst_hot_min_score", 6)

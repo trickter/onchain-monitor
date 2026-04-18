@@ -71,10 +71,12 @@ def _load_watchlist() -> set[str]:
 
 def _summarize_asset(asset, reason: str) -> str:
     symbol = asset.symbol or asset.contract or asset.asset_key
+    breakdown = "; ".join(asset.evidence) if asset.evidence else "none"
     return (
         f"{symbol} [{asset.chain}] "
         f"score={asset.score} tier={asset.tier} reason={reason} "
-        f"sources={','.join(asset.sources)}"
+        f"sources={','.join(asset.sources)} "
+        f"breakdown={breakdown}"
     )
 
 
