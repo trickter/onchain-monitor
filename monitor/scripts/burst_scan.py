@@ -159,13 +159,6 @@ def run(cfg: dict, dry_run: bool = False):
                 blocked_summaries.append(_summarize_asset(asset, "report-only risk tag"))
             continue
 
-        # burst requires at least one on-chain source
-        if asset.tier in ("hot", "critical") and not asset.has_onchain_evidence:
-            logger.debug("skip burst %s: no on-chain evidence", asset.asset_key)
-            if len(blocked_summaries) < 5:
-                blocked_summaries.append(_summarize_asset(asset, "missing on-chain evidence"))
-            continue
-
         # quiet hours suppress hot (not critical)
         if quiet and asset.tier == "hot":
             logger.debug("quiet hours: suppressing hot burst for %s", asset.symbol)
