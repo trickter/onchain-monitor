@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "skills": {
+    "crypto-market-rank": {
+      "source": "binance/binance-skills-hub",
+      "sourceType": "github",
+      "computedHash": "dcc8678019b255b5ca90b4d3e62dde522bc6cc5222304b1a92c8ceee2c8c3a1f"
+    },
+    "meme-rush": {
+      "source": "binance/binance-skills-hub",
+      "sourceType": "github",
+      "computedHash": "772e675ee5566313c80b3ba74b7e9a1f5039b80eb1b7a39af42079e96a82504f"
+    },
+    "okx-dex-market": {
+      "source": "okx/onchainos-skills",
+      "sourceType": "github",
+      "computedHash": "ff56790a5beb455a04a0ec4128948511273a7e45424f3a1e902df618ed94f90e"
+    },
+    "okx-dex-signal": {
+      "source": "okx/onchainos-skills",
+      "sourceType": "github",
+      "computedHash": "3f3934322afe8c3106dc4ec9da7ccc529275b83df74be8eecbd56ee4c37f3c87"
+    },
+    "okx-dex-token": {
+      "source": "okx/onchainos-skills",
+      "sourceType": "github",
+      "computedHash": "1dd2089a18026e257a5b7dea4aec4d22afd7d8d56ccc3224fe7b02575b8d8f57"
+    },
+    "okx-dex-trenches": {
+      "source": "okx/onchainos-skills",
+      "sourceType": "github",
+      "computedHash": "ec737a2e892799dde19409c30073a876a7d5ec7373e661dda373b723766ad18b"
+    },
+    "okx-dex-ws": {
+      "source": "okx/onchainos-skills",
+      "sourceType": "github",
+      "computedHash": "c5b0af7b799d7d89af8684c234cb3451decf6aa37b1797d1f0d38aaf592499cc"
+    }
+  }
+}

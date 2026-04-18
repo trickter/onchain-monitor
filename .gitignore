@@ -1,0 +1,24 @@
+# Local runtime state and secrets
+monitor/config.yaml
+monitor/state/
+monitor/logs/
+monitor/watchlist.json
+
+# Local IDE / agent settings
+.idea/
+.claude/
+
+# Python cache and environments
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db

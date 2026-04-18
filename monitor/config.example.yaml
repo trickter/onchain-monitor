@@ -1,0 +1,54 @@
+discord:
+  webhook_reports: "https://discord.com/api/webhooks/REPLACE_ME"
+  webhook_bursts: "https://discord.com/api/webhooks/REPLACE_ME"
+
+chains:
+  - solana
+  - bsc
+  - base
+  - ethereum
+
+thresholds:
+  liquidity_usd: 100000
+  holders: 300
+  risk_control_level_max: 3
+
+  topic_net_inflow_usd: 50000
+  topic_net_inflow_growth: 1.5
+
+  smart_money_cluster_count: 3
+  smart_money_cluster_window_min: 15
+
+  hype_rank_cutoff: 5
+  hype_rank_improvement: 5
+
+  burst_hot_min_score: 6
+  burst_critical_min_score: 8
+  burst_report_candidate_min_score: 4
+
+cooldown_minutes:
+  default: 90
+  critical: 30
+  upgrade_score_delta: 2
+
+quiet_hours:
+  start: "00:00"
+  end: "07:00"
+  tz: "Asia/Shanghai"
+
+onchainos_bin: "onchainos"
+scan_interval_minutes: 3
+
+report_provider: "codex"
+codex_model: ""
+
+blacklist_tags:
+  - honeypot
+  - rug
+  - blacklist
+  - trading_disabled
+
+report_candidate_only_tags:
+  - high_bundle
+  - suspicious_dev
+  - extreme_concentration
