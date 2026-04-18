@@ -1,4 +1,4 @@
-"""
+﻿"""
 Daily report generator.
 
 Reads recent events from SQLite, calls local Codex CLI with a report
@@ -99,8 +99,9 @@ def _call_codex(system_prompt: str, context_json: str, model: str | None = None)
 
     prompt = (
         f"{system_prompt}\n\n"
-        "以下是过去时间窗口内的监控数据，请根据上面的要求生成最终日报正文。"
-        "不要解释你的过程，不要返回 JSON，只输出适合直接发到 Discord 的正文。\n\n"
+        "Below is the monitoring data collected in the relevant time window. "
+        "Write the final report body only. Do not explain your process, "
+        "do not return JSON, and do not add any extra commentary outside the final Discord-ready text.\n\n"
         f"```json\n{context_json}\n```"
     )
 
@@ -176,7 +177,7 @@ def run(cfg: dict, kind: str, dry_run: bool = False):
     try:
         if provider == "codex":
             model = (cfg.get("codex_model") or "").strip() or None
-            logger.info("calling local Codex CLI%s for %s report …",
+            logger.info("calling local Codex CLI%s for %s report",
                         f" ({model})" if model else "", kind)
             report_text = _call_codex(system_prompt, context_json, model)
         else:
