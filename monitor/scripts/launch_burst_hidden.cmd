@@ -1,2 +1,3 @@
 @echo off
-wscript.exe "%~dp0launch_hidden.vbs" "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ""%~dp0run_burst_scan.ps1"""
+set SCRIPT_DIR=%~dp0
+wscript.exe "%SCRIPT_DIR%launch_hidden.vbs" "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ""%SCRIPT_DIR%run_burst_scan.ps1"""

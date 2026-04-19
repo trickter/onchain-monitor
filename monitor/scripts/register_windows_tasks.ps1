@@ -31,6 +31,15 @@ function Register-OnchainTask {
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to register scheduled task $TaskName"
     }
+
+    $settings = New-ScheduledTaskSettingsSet `
+        -AllowStartIfOnBatteries `
+        -DontStopIfGoingOnBatteries `
+        -StartWhenAvailable `
+        -MultipleInstances IgnoreNew `
+        -ExecutionTimeLimit (New-TimeSpan -Minutes 20)
+
+    Set-ScheduledTask -TaskName $TaskName -Settings $settings | Out-Null
 }
 
 function Install-StartupLauncher {
